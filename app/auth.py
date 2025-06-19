@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from typing import Optional
-from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -8,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.config import get_settings
 from app.database import get_db
 from app import models, schemas
+from app.firebase import verify_firebase_token
 
 settings = get_settings()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -35,16 +35,26 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+    # Verify Firebase ID token
     try:
-        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        token_data = schemas.TokenData(username=username)
-    except JWTError:
+        decoded = verify_firebase_token(token)
+        uid = decoded.get('uid')
+        email = decoded.get('email')
+    except Exception:
         raise credentials_exception
-    
-    user = db.query(models.User).filter(models.User.username == token_data.username).first()
-    if user is None:
-        raise credentials_exception
+
+    # Get or create local user
+    user = db.query(models.User).filter(models.User.firebase_uid == uid).first()
+    if not user:
+        # First-time sign-in: create user record
+        user = models.User(
+            email=email,
+            username=email.split('@')[0],
+            hashed_password='',  # not used
+            firebase_uid=uid,
+            is_active=True
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
     return user 

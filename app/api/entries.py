@@ -147,7 +147,7 @@ async def upload_attachment(
         entry_id=entry_id,
         type="photo",
         url=file_url,
-        metadata={
+        metadata_={
             "filename": file.filename,
             "content_type": file.content_type,
             "size": file.size

@@ -9,6 +9,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     username = Column(String, unique=True, index=True, nullable=False)
+    firebase_uid = Column(String, unique=True, index=True, nullable=True)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -42,7 +43,7 @@ class Attachment(Base):
     type = Column(String, nullable=False)  # 'photo', 'audio', etc.
     url = Column(String, nullable=False)
     thumbnail_url = Column(String, nullable=True)
-    metadata = Column(JSON, default=dict)
+    metadata_ = Column('metadata', JSON, default=dict)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     entry = relationship("JournalEntry", back_populates="attachments") 
