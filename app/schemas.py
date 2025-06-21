@@ -6,9 +6,14 @@ from datetime import datetime
 class UserBase(BaseModel):
     email: EmailStr
     username: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
 class UserCreate(UserBase):
+    first_name: str
+    last_name: str
     password: str
+    firebase_uid: Optional[str] = None
     
     @validator('password')
     def validate_password(cls, v):
@@ -34,6 +39,14 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: Optional[str] = None
+
+class UserUpdate(BaseModel):
+    """Schema for updating user profile information."""
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    username: Optional[str] = None
+    password: Optional[str] = None
 
 # Journal Entry schemas
 class LocationData(BaseModel):

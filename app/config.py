@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     secret_key: str
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 10080  # 7 days
-    firebase_service_account_path: str  # path to Firebase service account JSON
+    firebase_service_account_path: str  # Required for Firebase authentication
     
     # AWS S3 settings
     s3_bucket_name: str = ""
