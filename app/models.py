@@ -25,8 +25,10 @@ class JournalEntry(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     content = Column(Text, nullable=False)
-    mood = Column(String, nullable=True)
-    mood_score = Column(Float, nullable=True)
+    mood = Column(String, nullable=True)  # Legacy field, keep for backwards compatibility
+    mood_score = Column(Float, nullable=True)  # Legacy field
+    emotions = Column(JSON, nullable=True)  # New multi-dimensional emotion system
+    energy_level = Column(Integer, nullable=True)  # -50 to +50 range
     location = Column(JSON, nullable=True)  # {lat, lng, place_name}
     weather = Column(JSON, nullable=True)
     tags = Column(JSON, default=list)
@@ -48,4 +50,15 @@ class Attachment(Base):
     metadata_ = Column('metadata', JSON, default=dict)
     created_at = Column(DateTime, default=datetime.utcnow)
     
-    entry = relationship("JournalEntry", back_populates="attachments") 
+    entry = relationship("JournalEntry", back_populates="attachments")
+
+class EmotionHistory(Base):
+    __tablename__ = "emotion_history"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    emotion_data = Column(JSON, nullable=False)  # Stores emotion entries for pattern analysis
+    context = Column(JSON, nullable=True)  # Context information (location, time, etc)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    user = relationship("User")

@@ -13,4 +13,5 @@ alembic==1.13.1
 httpx==0.26.0
 python-dotenv
 firebase-admin
-email-validator 
+email-validator
+reportlab==4.0.9pytest
